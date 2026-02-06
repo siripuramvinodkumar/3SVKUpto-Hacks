@@ -1,0 +1,7 @@
+{
+  "name": "3SVK Career Bridge",
+  "description": "A professional platform connecting students with paid internships and micro-jobs through AI-powered skill matching and real-time data sourcing.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
