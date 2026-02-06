@@ -1,20 +1,28 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+3SVK Career Bridge
+Connecting Students to Micro-Jobs and Paid Internships
 
-# Run and deploy your AI Studio app
+🚀 Overview
+3SVK is an AI-powered platform designed to bridge the gap between academic learning and professional experience. By leveraging Gemini 1.5 Flash, the platform provides a real-time matching engine that aligns a student's current skills and academic profile with verified paid internships and micro-job opportunities.
 
-This contains everything you need to run your app locally.
+✨ Key Features
+AI Skill Matching: Uses Google's Gemini 1.5 Flash to calculate a "Skill Fit" percentage for every job posting.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1-ghOdQc1kqZlFAgUkvV7f18F1YCaNoF2
+Micro-Skilling Dashboard: A professional interface for students to track their progress and discover new opportunities.
 
-## Run Locally
+Real-time Job Feed: Integrated search and filter functionality to find paid roles immediately.
 
-**Prerequisites:**  Node.js
+🛠️ Tech Stack
+Frontend: React, TypeScript
 
+AI Engine: Google Gemini API (Gemini 1.5 Flash)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Styling: Tailwind CSS
+
+📦 Getting Started
+To run this project locally:
+
+Clone the repository: git clone https://github.com/siripuramvinodkumar/3SVKUpto-Hacks.git
+
+Install dependencies: npm install
+
+Start the development server: npm run dev
