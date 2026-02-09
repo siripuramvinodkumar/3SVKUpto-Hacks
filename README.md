@@ -2,7 +2,7 @@
 Connecting Students to Micro-Jobs and Paid Internships
 
 🚀 Overview
-3SVK is an AI-powered platform designed to bridge the gap between academic learning and professional experience. By leveraging Gemini 1.5 Flash, the platform provides a real-time matching engine that aligns a student's current skills and academic profile with verified paid internships and micro-job opportunities.
+3SVK is a platform made especially for students. It helps students find small jobs based on what they already know and what they want to learn. By doing these micro-jobs, students can gain real experience, improve their skills, and feel more confident about their future careers.”
 
 ✨ Key Features
 AI Skill Matching: Uses Google's Gemini 1.5 Flash to calculate a "Skill Fit" percentage for every job posting.
