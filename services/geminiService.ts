@@ -1,10 +1,12 @@
+import { GoogleGenAI, SchemaType } from "@google/genai";
+import { Job } from "../types";
 
-import { GoogleGenAI, Type } from "@google/genai";
-import { Job, MatchResult } from "../types";
+// 1. Fix: Use import.meta.env for Vite and add the '!' non-null assertion
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY!;
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// 2. Fix: Ensure the client is initialized correctly with the key
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-// High-quality static dataset to ensure the app works even without API quota
 const CURATED_JOBS: Job[] = [
   {
     id: "curated-1",
@@ -39,40 +41,6 @@ const CURATED_JOBS: Job[] = [
     sector: "Govt",
     matchScore: 78,
     matchReasoning: "Strong Python skills; security training will be provided."
-  },
-  {
-    id: "curated-3",
-    title: "React Native UI Developer",
-    company: "Airbnb",
-    location: "San Francisco, CA",
-    description: "Help build the next generation of mobile experiences. Focus on performance and smooth animations.",
-    requirements: ["React", "TypeScript", "UI/UX Design"],
-    salary: "$5,000/mo",
-    type: "Micro-job",
-    sourceUrl: "https://airbnb.com/careers",
-    isVerified: true,
-    postedDate: "4 hours ago",
-    sourceName: "Airbnb",
-    sector: "Private",
-    matchScore: 88,
-    matchReasoning: "Direct match for your React and TypeScript expertise."
-  },
-  {
-    id: "curated-4",
-    title: "Citizen Engagement Platform Intern",
-    company: "Municipal Digital Services",
-    location: "Chicago, IL",
-    description: "Developing community outreach tools for city residents. Working with modern web stacks.",
-    requirements: ["React", "Node.js", "SQL"],
-    salary: "$28/hr",
-    type: "Internship",
-    sourceUrl: "https://cityofchicago.org",
-    isVerified: true,
-    postedDate: "3 days ago",
-    sourceName: "City Gov Portal",
-    sector: "Govt",
-    matchScore: 82,
-    matchReasoning: "Strong React/Node background matches city tech stack."
   }
 ];
 
@@ -83,46 +51,45 @@ export async function fetchJobs(
   forceLive: boolean = false
 ): Promise<{ jobs: Job[], status: 'live' | 'curated' | 'error' }> {
   
-  // If not forceLive, return from curated list immediately to avoid hitting quota
+  // Return curated list immediately if no live search requested
   if (!forceLive && !searchQuery) {
     const filtered = CURATED_JOBS.filter(j => j.sector === sector);
     return { jobs: filtered, status: 'curated' };
   }
 
-  // If forceLive or searchQuery, attempt API call
   try {
-    const model = "gemini-3-flash-preview";
+    const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" }); // Use stable 1.5 flash
+
     const prompt = `Find 6 REAL, CURRENT student roles for ${searchQuery || 'internships'}. 
     Sector: ${sector}. 
     Student Skills: ${studentSkills.join(", ")}.
     Calculate matchScore and matchReasoning for each.
     Return JSON array.`;
 
-    const response = await ai.models.generateContent({
-      model: model,
-      contents: prompt,
-      config: {
-        tools: [{ googleSearch: {} }],
+    // 3. Fix: Use standard generateContent structure for the SDK
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {
-          type: Type.ARRAY,
+          type: SchemaType.ARRAY,
           items: {
-            type: Type.OBJECT,
+            type: SchemaType.OBJECT,
             properties: {
-              title: { type: Type.STRING },
-              company: { type: Type.STRING },
-              location: { type: Type.STRING },
-              description: { type: Type.STRING },
-              requirements: { type: Type.ARRAY, items: { type: Type.STRING } },
-              salary: { type: Type.STRING },
-              type: { type: Type.STRING },
-              sourceUrl: { type: Type.STRING },
-              sourceName: { type: Type.STRING },
-              postedDate: { type: Type.STRING },
-              isVerified: { type: Type.BOOLEAN },
-              sector: { type: Type.STRING },
-              matchScore: { type: Type.NUMBER },
-              matchReasoning: { type: Type.STRING }
+              title: { type: SchemaType.STRING },
+              company: { type: SchemaType.STRING },
+              location: { type: SchemaType.STRING },
+              description: { type: SchemaType.STRING },
+              requirements: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+              salary: { type: SchemaType.STRING },
+              type: { type: SchemaType.STRING },
+              sourceUrl: { type: SchemaType.STRING },
+              sourceName: { type: SchemaType.STRING },
+              postedDate: { type: SchemaType.STRING },
+              isVerified: { type: SchemaType.BOOLEAN },
+              sector: { type: SchemaType.STRING },
+              matchScore: { type: SchemaType.NUMBER },
+              matchReasoning: { type: SchemaType.STRING }
             },
             required: ["title", "company", "description", "sourceUrl", "isVerified", "sourceName", "sector", "matchScore", "matchReasoning"]
           }
@@ -130,14 +97,13 @@ export async function fetchJobs(
       }
     });
 
-    const jobs = JSON.parse(response.text) as Job[];
+    const jobs = JSON.parse(result.response.text()) as Job[];
     return { 
       jobs: jobs.map((j, idx) => ({ ...j, id: `live-${idx}-${Date.now()}` })), 
       status: 'live' 
     };
   } catch (err: any) {
-    console.warn("API quota hit, serving curated results.");
-    // Even if it fails, we show curated results so the user isn't blocked
+    console.warn("API quota hit or error, serving curated results:", err);
     const filtered = CURATED_JOBS.filter(j => 
       j.sector === sector && 
       (searchQuery ? j.title.toLowerCase().includes(searchQuery.toLowerCase()) : true)
