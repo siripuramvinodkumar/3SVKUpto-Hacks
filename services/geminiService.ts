@@ -1,21 +1,21 @@
+// 1. Correct import for the new SDK (Removes Error TS2305)
 import { GoogleGenAI } from "@google/genai";
 
-// 1. Bypass the Vite type error using 'as any'
+// 2. Bypass Vite environment type error (Removes Error TS2339)
 const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
 
 if (!apiKey) {
-    throw new Error("VITE_GEMINI_API_KEY is not defined in your Vercel Environment Variables.");
+    throw new Error("VITE_GEMINI_API_KEY is missing from Vercel Environment Variables.");
 }
 
-// 2. Initialize with the new SDK structure
+// 3. New SDK initialization pattern (Removes Error TS2339 for getGenerativeModel)
 const ai = new GoogleGenAI({ apiKey });
 
 export async function generateJobMatch(studentSkills: string[], jobDescription: string) {
   try {
-    // 3. Use the new models.generateContent method
     const response = await ai.models.generateContent({
       model: "gemini-1.5-flash",
-      contents: [{ role: 'user', parts: [{ text: `Match skills: ${studentSkills.join(", ")} with job: ${jobDescription}` }] }],
+      contents: [{ role: 'user', parts: [{ text: `Match these skills: ${studentSkills.join(", ")} with this job: ${jobDescription}` }] }],
     });
 
     return response.text;
