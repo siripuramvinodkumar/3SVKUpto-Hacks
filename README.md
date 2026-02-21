@@ -26,3 +26,5 @@ Clone the repository: git clone https://github.com/siripuramvinodkumar/3SVKUpto-
 Install dependencies: npm install
 
 Start the development server: npm run dev
+
+Live server: https://www.google.com/search?q=https://threesvkupto-hacks.onrender.com
