@@ -1,25 +1,24 @@
 import { GoogleGenAI } from "@google/genai";
+import { Job } from "../types";
 
 const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY!;
 const ai = new GoogleGenAI({ apiKey });
 
-// Update the function signature to accept all 4 expected arguments
 export async function fetchJobs(
   studentSkills: string[], 
   searchQuery: string, 
   sector: string, 
   forceLive: boolean = false
-) {
+): Promise<{ jobs: Job[], status: 'live' | 'curated' | 'error' }> {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-1.5-flash",
-      contents: [{ role: 'user', parts: [{ text: `Match skills: ${studentSkills.join(", ")} with job: ${searchQuery} in the ${sector} sector.` }] }],
+      contents: [{ role: 'user', parts: [{ text: `Find student jobs for skills: ${studentSkills.join(", ")} matching: ${searchQuery} in ${sector}.` }] }],
     });
-
-    // Return the response in a structured format the UI expects
-    return { jobs: [], result: response.text, status: 'live' }; 
+    
+    // Process and return your jobs array here...
+    return { jobs: [], status: 'live' }; 
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    return { jobs: [], result: "Error loading jobs", status: 'error' };
+    return { jobs: [], status: 'error' };
   }
 }
